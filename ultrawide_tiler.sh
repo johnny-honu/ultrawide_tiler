@@ -3,7 +3,7 @@
 # ultrawide_tiler.sh
 # Johnny Honu (johnny.honu at gmail dot com)
 # December 31,2022
-# This script is written for the X Window System; it does not work in Wayland.
+# This script is written for X11; it does not work in Wayland.
 # Dependencies: wmctrl, xdotool, and xprop.
 
 # READ PARAMETERS FROM SCRIPT NAME
@@ -20,6 +20,9 @@ desktop_h=${desktop_array[8]#*x}
 read -r -a frame_array < <(xprop -id $(xdotool getactivewindow) | grep _NET_FRAME_EXTENTS)
 frame_w=$((${frame_array[2]/,/}+${frame_array[3]/,/}))
 frame_h=$((${frame_array[4]/,/}+${frame_array[5]}))
+
+# GET WINDOW STATE
+win_state=$(xprop -id $(xdotool getactivewindow) | grep _NET_WM_STATE)
 
 # CALCULATE NEW X-ORIGIN
 ((x=desktop_w/grid_w*(win_x-1)))
@@ -50,6 +53,13 @@ frame_h=$((${frame_array[4]/,/}+${frame_array[5]}))
 ((h+=h_add))
 
 # RESIZE AND MOVE WINDOW
+if [[ "$win_state" == *_NET_WM_STATE_FULLSCREEN*  ]]; then
+    wmctrl -r :ACTIVE: -b remove,fullscreen 
+elif [[ "$win_state" == *_NET_WM_STATE_SHADED* ]]; then
+    wmctrl -r :ACTIVE: -b remove,shaded
+elif [[ "$win_state" == *_NET_WM_STATE_MAXIMIZED_HORZ* || "$win_state" == *_NET_WM_STATE_MAXIMIZED_VERT* ]]; then
+    wmctrl -r :ACTIVE: -b remove,maximized_vert,maximized_horz
+fi
 wmctrl -r :ACTIVE: -e 0,${x},${y},${w},${h}
 
 # GNU LICENSE

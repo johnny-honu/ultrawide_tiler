@@ -77,7 +77,7 @@ Together, W and H define the desired **Window Size**. A window can occupy one ti
 
 This script depends on: wmctrl, xdotool, and xprop.
 
-This script is written for the X Window System; it does not work in Wayland.
+This script is written for the X11; it does not work in Wayland.
 
 ### GNU LICENSE
 This file is part of *ultrawide_tiler*.
